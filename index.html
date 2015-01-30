@@ -38,7 +38,9 @@
           <a class="navbar-brand" href="index.html">Desktop Gradebook</a>
         </div>
         <div id="navbar" class="navbar-collapse collapse">
-            <a href="classes.html" type="submit" class="btn btn-success">Sign in</a>
+            <form class="navbar-form navbar-right" role="form">
+                <a href="#" type="submit" class="btn btn-success signin">Sign in</a>
+            </form> 
         </div><!--/.navbar-collapse -->
       </div>
     </nav>
@@ -82,8 +84,18 @@
 
         <script src="js/vendor/bootstrap.min.js"></script>
 
+        <script src="js/config.js"></script>
         <script src="js/main.js"></script>
 
+        <script>
+            $(document).ready(function(){
+                console.log(api);
+                $(".signin").on("click", function(){
+                    api.redirect();
+                });
+            });
+        </script>
+        
         <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
         <script>
             (function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=

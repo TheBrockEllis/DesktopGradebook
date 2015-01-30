@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title></title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="stylesheet" href="css/bootstrap.min.css">
+        <style>
+            body {
+                padding-top: 50px;
+                padding-bottom: 20px;
+            }
+        </style>
+        <link rel="stylesheet" href="css/bootstrap-theme.min.css">
+        <link rel="stylesheet" href="css/bootstrap-switch.css">
+        <link rel="stylesheet" href="css/main.css">
+
+        <script src="js/vendor/modernizr-2.6.2.min.js"></script>
+    </head>
+    <body>
+        <!--[if lt IE 7]>
+            <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+        <![endif]-->
+    <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="index.html">Desktop Gradebook</a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <form class="navbar-form navbar-right" role="form">
+            <button href="desktop.html" class="btn btn-success logout">Log Out</button>
+          </form>
+        </div><!--/.navbar-collapse -->
+      </div>
+    </nav>
+
+    <div class="container" id="content">
+        <!-- Example row of columns -->
+        <div class="page-header">
+            <a type="button" href="class.html" class="btn btn-default btn-sm" style='margin: 0px 10px 10px 0px;'>
+                <span class="glyphicon glyphicon-hand-left" aria-hidden="true"></span> Back
+            </a>
+            <h1 style='display:inline;'>Class Name <small>Students</small></h1>
+        </div>     
+    </div> <!-- /container -->
+    
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+        <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.11.1.min.js"><\/script>')</script>
+    
+        <script src="js/vendor/bootstrap.min.js"></script>
+        <script src="js/vendor/bootstrap-switch.js"></script>
+        <script src="js/config.js"></script>
+        <script src="js/main.js"></script>
+
+        <script>
+            $.data(window, "classid", 58418);
+            $.data(window, "schoolid", 1002);
+            
+            $(document).ready(function(){
+                var classid = $.data(window, "classid");
+                
+                api.getData("Class/"+classid+"/Directory").done(function(students){
+                    var student = "";
+                    for(var i=0, l = students.length; i < l; i++){
+                        var ID = students[i].ID;
+                        var LName = students[i].LastName;
+                        var FName = students[i].FirstName;
+                                                
+                        student += "<div class='row'>";
+                        student += "<div class='col-md-8'>";
+                        student += "<h2>"+FName+" "+LName+"</h2>";
+                        student += "</div>"; //end col 8
+                        student += "<div class='col-md-4' style='margin-top:20px;'>";
+                        student += "<a class='btn btn-primary student' data-toggle='collapse' id='"+ID+"' href='#data_"+ID+"' aria-expanded='false' aria-controls='data_"+ID+"'>";
+                        student += "View Details"    
+                        student += "</a>";
+                        student += "</div>"; //end col 4
+                        student += "</div>"; //end row
+                
+                        student += "<div class='collapse' id='data_"+ID+"'>";
+                        student += "<div class='row'>";
+                        student += "<div class='col-md-8'>";
+                        student += "<TABLE class='table-striped table table-hover' id='table_"+ID+"'>";
+                        student += "<TR>";
+                        student += "<TD>Student Code</TD>";
+                        student += "<TD class='Code'></TD>";
+                        student += "</TR>";
+                        student += "<TR>";
+                        student += "<TD>Nick Name</TD>";
+                        student += "<TD class='NickName'></TD>";
+                        student += "</TR>";
+                        student += "<TR>";
+                        student += "<TD>Date of birth</TD>";
+                        student += "<TD class='DOB'></TD>";
+                        student += "</TR>";
+                        student += "<TR>";
+                        student += "<TD>Email</TD>";
+                        student += "<TD class='Email'></TD>";
+                        student += "</TR>";
+                        student += "<TR>";
+                        student += "<TD>Cell Phone</TD>";
+                        student += "<TD class='Cell'></TD>";
+                        student += "</TR>";
+                        student += "<TR>";
+                        student += "<TD>Medical Info</TD>";
+                        student += "<TD class='MedInfo'></TD>";
+                        student += "</TR>";
+                        student += "</TABLE>"
+                        student += "</div>"; //end col
+                        
+                        student += "<div class='col-md-4' id='photo_"+ID+"'>";
+                        student += "</div>"; //end col
+
+                        student += "</div>"; //end row
+                        student += "</div>"; //end collapse
+                            
+                        //console.log(student);
+                        
+                    }
+                    
+                    student += "<hr>";
+
+                    $('.container#content').append(student);
+                    
+                    getStudentDetails();
+                    
+                }); // end get api 
+
+                function getStudentDetails(){
+                    var schoolid = $.data(window, "schoolid");
+                    
+                    $(".student").each(function(){
+                        var sid = $(this).attr("id");
+                        api.getData("Class/"+classid+"/Directory/"+sid).done(function(student){
+                            for(var key in student){
+                        
+                                if (key == "Picture") {
+                                    var pic = document.createElement("img");
+                                    pic.setAttribute("src", "https://app.sycamoreeducation.com/Schools/"+schoolid+"/Students/"+student[key]);
+                                    pic.setAttribute("title", "Student");
+                                    
+                                    if(!pic.complete) {
+                                        pic.setAttribute("src", "img/noprofile.jpg");
+                                    }
+                                    
+                                    $("#photo_"+sid).append(pic);
+                                }else{
+                                    $("#table_"+sid).find("."+key).text(student[key]);
+                                }
+                            }
+                        });
+                    });
+                }  //end getStudentDetails function 
+                                    
+            }); //end doc ready
+        </script>
+        
+        <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
+        <script>
+            (function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=
+            function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;
+            e=o.createElement(i);r=o.getElementsByTagName(i)[0];
+            e.src='//www.google-analytics.com/analytics.js';
+            r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));
+            ga('create','UA-XXXXX-X');ga('send','pageview');
+        </script>
+    </body>
+</html>
