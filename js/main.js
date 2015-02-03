@@ -1,6 +1,16 @@
 var api = new function(){
     
     base = "https://app.sycamoreeducation.com/api/v1/",
+
+    get = function(key){
+        console.log("Getting " + key);
+        return localStorage.getItem(key);
+    },
+
+    set = function(key, value){
+        console.log("Setting " + key + " => " + value);
+        return localStorage.setItem(key, value);
+    },
     
     getData = function(endpoint, params){
         console.log("Attempting to call API - get");
@@ -14,7 +24,7 @@ var api = new function(){
         return $.post(base + endpoint, data);
     },
     
-    redirect = function(){
+    authenticate = function(){
         var path = 'https://app.sycamoreeducation.com/oauth/authorize.php?';
         var queryParams = ['client_id=' + CONFIG.client_id,
         'redirect_uri=' + CONFIG.callback_uri,
@@ -22,54 +32,69 @@ var api = new function(){
         'response_type=token'];
         var query = queryParams.join('&');
         var url = path + query;
-        window.open(url,"_self"); 
-    },
+   
+        function Response() {
+            this.access_token = null; 
+            this.expires_in  = null;
+        };
+
+        var response = new Response();
     
-    verifyOAuth = function(){
-        var rawParams = window.location.hash.substring(1);
-        var oAuthData = parseParams(rawParams);
-        setLocalStorage(oAuthData[0]);
-                
-        window.open("classes.html", "_self");  
+        window.hashUpdate = function(){ 
+            //function called every 500ms to check if token is in url
+            console.log("Checking hash");
+
+            if(window.loginWindow.closed){
+                window.clearInterval(intervalID);
+            } else {
+                var url = window.loginWindow.document.URL;
+                var tabUrl = url.split("#"); //first split to separate the domain part and the parameter part
+                var paramString = tabUrl[1]; //I concerned only by the second part after the '#'
+                if(paramString != undefined){
+                    var allParam = paramString.split("&");
+                    for (var i = 0; i < allParam.length; i++) {
+                        var oneParamKeyValue = allParam[i].split("=");
+                        response[oneParamKeyValue[0]] = oneParamKeyValue[1]; //store my token in form of key => value
+                    };
+
+                    //close the window after 1500ms
+                    setTimeout(function(){
+                        //save shit here
+                        console.log(response);
+                        api.set("access_token", response.access_token);
+                        api.getData("Me").done(function(me){
+                            console.log("Gettin done gettin me");
+                            for(var key in me){
+                                api.set(key, me[key]);
+                            }
+                        
+                            window.loginWindow.close();
+                            location.href = "classes.html";
+                        
+                        });
+                    }, 1500);
+                }
+            }
+        };
+
+        window.loginWindow = window.open(url, "Login Sycamore", false);
+        window.intervalID = window.setInterval("window.hashUpdate()", 1000); 
     };
-    
+
     return {
+        get: get,
+        set: set,
         getData: getData,
         postData: postData,
-        redirect: redirect,
-        verifyOAuth: verifyOAuth
+        authenticate: authenticate,
     };
     
 } ();
 
-/*(endpoint, verb, params, data){
-    console.log("Attempting to call API");
-    console.log("Endpoint: " + endpoint);
-    $.ajax({
-        url: "https://app.sycamoreeducation.com/api/v1/"+endpoint,
-        type: verb,
-        crossDomain: true,
-        datatype: 'json',
-        processData: false,
-    })
-    .done(function(data, statusText, xhr){
-        console.log("data: " + data);
-        console.log("status text: " + statusText);
-        console.log("xhrs: " + xhr);
-        work(data);
-    })
-    .fail(function(xhr, textStatus, errorThrown) {
-        console.log(xhr);
-        console.log(textStatus);
-        console.log(errorThrown);
-    });
-}*/
-
-
 $.ajaxSetup({
     'beforeSend': function(xhr) {
-        //var access_token = localStorage.getItem("sycamore_auth");
-        var access_token = CONFIG.access_code;
+        var access_token = api.get("access_token");
+        //var access_token = CONFIG.access_code;
         xhr.setRequestHeader('Authorization', 'Bearer '+access_token);
     }
 });

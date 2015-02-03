@@ -75,13 +75,11 @@
 
         <script src="js/config.js"></script>
         <script src="js/main.js"></script>
-	<script>
-	    $.data(window, "userid", 87585);
-            
+	    <script>
             $(document).ready(function(){
-		var userid = $.data(window, "userid");
-		
-		api.getData("User/"+userid+"/Classes").done(function(data){
+	            var userid = api.get("UserID");
+            
+		        api.getData("User/"+userid+"/Classes").done(function(data){
 		    
 		    var elm = "";
                                         
