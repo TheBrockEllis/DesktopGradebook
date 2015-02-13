@@ -43,15 +43,18 @@ var api = new function(){
         window.hashUpdate = function(){ 
             //function called every 500ms to check if token is in url
             console.log("Checking hash");
+            console.log(window.loginWindow);
 
             if(window.loginWindow.closed){
                 window.clearInterval(intervalID);
             } else {
                 var url = window.loginWindow.document.URL;
+                console.log(url);
                 var tabUrl = url.split("#"); //first split to separate the domain part and the parameter part
-                var paramString = tabUrl[1]; //I concerned only by the second part after the '#'
-                if(paramString != undefined){
-                    var allParam = paramString.split("&");
+                var hashString = tabUrl[1]; //I concerned only by the second part after the '#'
+                
+                if(hashString != undefined){
+                    var allParam = hashString.split("&");
                     for (var i = 0; i < allParam.length; i++) {
                         var oneParamKeyValue = allParam[i].split("=");
                         response[oneParamKeyValue[0]] = oneParamKeyValue[1]; //store my token in form of key => value
