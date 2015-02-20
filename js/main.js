@@ -107,5 +107,20 @@ $(".logout").click(function(){
     
     window.location.replace("index.html");
     localStorage.clear();
-
 });
+
+function loadTemplate(path, target){
+
+    var source;
+    var template;
+
+    $.ajax({
+        url: path, //ex. js/templates/mytemplate.handlebars
+        cache: true,
+        success: function(data) {
+            source    = data;
+            template  = Handlebars.compile(source);
+            $('#target').html(template);
+        }               
+    });         
+}

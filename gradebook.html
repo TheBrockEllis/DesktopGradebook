@@ -98,8 +98,10 @@
     
         <script src="js/vendor/bootstrap.min.js"></script>
         <script src="js/vendor/bootstrap-switch.js"></script>
+        <script src="js/vendor/handlebars.min.js"></script>
         <script src="js/config.js"></script>
         <script src="js/main.js"></script>
+        <script src="templates/gradebook/students.js"></script>
 
         <script>
             $.data(window, "classid", 58418);
@@ -217,14 +219,40 @@
                     var students = window.students;
                     
                     var header = "";
-
-                    header += "<h3>Points Possible: " + assignment.Possible + "</h3>";                   
+                    var content = "<table class='table table-striped'>";
+                    
+                    header += "<p>Points Possible: " + assignment.Possible + "</p>";                   
+                    header += "<p>Due Date: " + assignment.DueDate + "</p>";                   
                     
                     for(var i=0; i < students.length; i++){
                         var FName = students[i].FirstName;
+                        var LName = students[i].LastName;
                         console.log(FName);
                         
+                        content += "<tr>";
+                        content += "<td>"+LName+"</td>";
+                        content += "<td><input type=number mix=0 max="+assignment.Possible+" /></td>";
+                        content += "<td>";
+                        content += "<div class=dropdown>"
+                        content += "<button id=status type=button data-toggle=dropdown aria-haspopup=true aria-expanded=false>";
+                        content += "Status";
+                        content += "<span class='caret'></span>";
+                        content += "</button>";
+
+                        content += "<ul class=dropdown-menu role=menu aria-labelledby=status>";
+                        content += "<li>Missing</li>";
+                        content += "<li>Late</li>";
+                        content += "<li>Excused</li>";
+                        content += "<li>Absent</li>";
+                        content += "</ul>";
+                        content += "</div>";
+                        content += "<span id='statuslabel'></span>";
+                        content += "</td>";
+                        content += "</tr>";
+                        
                     }
+                    
+                    $("#students").append(header).append(content);
                     
                 }); //end get assignment
                 
